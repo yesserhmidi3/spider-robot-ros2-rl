@@ -1,0 +1,841 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="spider">
+  <link name="base_footprint"/>
+
+<joint name="base_joint" type="fixed">
+  <parent link="base_footprint"/>
+  <child link="base_link"/>
+  <origin xyz="0 0 0" rpy="0 0 0"/> 
+</joint>
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="1.62788532653835E-11 9.73235236285258E-05 0.0175394273433221"
+        rpy="0 0 0" />
+       <mass
+        value="0.0702507424348534" />
+      <inertia
+        ixx="4.1064934681457E-05"
+        ixy="-3.87391822782159E-11"
+        ixz="1.7943949183246E-17"
+        iyy="2.00036992854258E-05"
+        iyz="1.97807200891721E-09"
+        izz="5.9997945685143E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/base_link_collision.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="Link_L1_J1">
+    <inertial>
+      <origin
+        xyz="0.0236084991747013 -0.00895220380238049 -0.0145197977540955"
+        rpy="0 0 0" />
+      <mass
+        value="0.0133962011006856" />
+      <inertia
+        ixx="1.20686948252017E-06"
+        ixy="1.56565090348018E-07"
+        ixz="7.18568034010356E-09"
+        iyy="1.49762663172862E-06"
+        iyz="3.14978901358432E-10"
+        izz="6.67655934530738E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L1_J1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.796078431372549 0.823529411764706 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L1_J1_collision.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="L1_J1"
+    type="revolute">
+    <origin
+      xyz="0.0351 -0.03565 0.037075"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="Link_L1_J1" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-0.785"
+      upper="0.785"
+      effort="0.2"
+      velocity="6" />
+    <dynamics
+      damping="0.1"
+      friction="0.01" />
+  </joint>
+  <link
+    name="Link_L1_J2">
+    <inertial>
+      <origin
+        xyz="0.0298997060818792 0.00785498012440974 0.000646483871221695"
+        rpy="0 0 0" />
+      <mass
+        value="0.00732087514298049" />
+      <inertia
+        ixx="1.67786263058952E-06"
+        ixy="5.33432537441025E-08"
+        ixz="-3.92403361839726E-08"
+        iyy="1.83532771060218E-06"
+        iyz="1.17257255253697E-08"
+        izz="3.33399148466329E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L1_J2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.796078431372549 0.823529411764706 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L1_J2_collision.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="L1_J2"
+    type="revolute">
+    <origin
+      xyz="0.021447 -0.02574 -0.009775"
+      rpy="0 0 0" />
+    <parent
+      link="Link_L1_J1" />
+    <child
+      link="Link_L1_J2" />
+    <axis
+      xyz="-0.28533 -0.95843 0" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="0.2"
+      velocity="6" />
+    <dynamics
+      damping="0.1"
+      friction="0.01" />
+  </joint>
+  <link
+    name="Link_L1_J3">
+    <inertial>
+      <origin
+        xyz="0.011236707190984 0.0132879872009395 -0.0094761726320501"
+        rpy="0 0 0" />
+      <mass
+        value="0.0146889846273082" />
+      <inertia
+        ixx="3.19089185153446E-06"
+        ixy="3.48026946583282E-07"
+        ixz="1.56085331599813E-06"
+        iyy="4.15458318425721E-06"
+        iyz="-5.56777151792972E-07"
+        izz="1.4023032286676E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L1_J3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L1_J3_collision.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="L1_J3"
+    type="revolute">
+    <origin
+      xyz="0.052698 -0.015689 0.0013453"
+      rpy="0 0 0" />
+    <parent
+      link="Link_L1_J2" />
+    <child
+      link="Link_L1_J3" />
+    <axis
+      xyz="-0.28533 -0.95843 0" />
+    <limit
+      lower="-2.61"
+      upper="2.61"
+      effort="0.2"
+      velocity="6" />
+    <dynamics
+      damping="0.1"
+      friction="0.01" />
+  </joint>
+  <link
+    name="Link_L2_J1">
+    <inertial>
+      <origin
+        xyz="0.0146162013375729 0.0205938212771885 -0.0145229330720895"
+        rpy="0 0 0" />
+      <mass
+        value="0.0133865404147975" />
+      <inertia
+        ixx="1.44119689944121E-06"
+        ixy="-1.94468483659966E-07"
+        ixz="6.56465802540795E-09"
+        iyy="1.2614433861928E-06"
+        iyz="3.45736324596811E-09"
+        izz="6.66471494600889E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L2_J1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.796078431372549 0.823529411764706 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L2_J1_collision.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="L2_J1"
+    type="revolute">
+    <origin
+      xyz="0.0351 0.03615 0.037075"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="Link_L2_J1" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-0.785"
+      upper="0.785"
+      effort="0.2"
+      velocity="6" />
+    <dynamics
+      damping="0.1"
+      friction="0.01" />
+  </joint>
+  <link
+    name="Link_L2_J2">
+    <inertial>
+      <origin
+        xyz="0.0283628440004605 0.00851255104162714 -0.00956856211318974"
+        rpy="0 0 0" />
+      <mass
+        value="0.00732087514249103" />
+      <inertia
+        ixx="1.86174956435334E-06"
+        ixy="1.36685272354825E-08"
+        ixz="3.60511163736236E-07"
+        iyy="1.870023438188E-06"
+        iyz="4.35324097134465E-07"
+        izz="3.11540882311625E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L2_J2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.796078431372549 0.823529411764706 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L2_J2_collision.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="L2_J2"
+    type="revolute">
+    <origin
+      xyz="0.0034744 0.033323 -0.009775"
+      rpy="0 0 0" />
+    <parent
+      link="Link_L2_J1" />
+    <child
+      link="Link_L2_J2" />
+    <axis
+      xyz="-0.77083 0.63704 0" />
+
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="0.2"
+      velocity="6" />
+    <dynamics
+      damping="0.1"
+      friction="0.01" />
+  </joint>
+  <link
+    name="Link_L2_J3">
+    <inertial>
+      <origin
+        xyz="0.010497874188933 -0.0123221701771937 -0.0114276292693824"
+        rpy="0 0 0" />
+      <mass
+        value="0.0146889862433448" />
+      <inertia
+        ixx="3.99463851303802E-06"
+        ixy="-2.78949546814305E-07"
+        ixz="-7.75103488743065E-07"
+        iyy="3.98941574883212E-06"
+        iyz="-8.15632010992575E-07"
+        izz="7.63724120488949E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L2_J3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.796078431372549 0.823529411764706 0.937254901960784 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L2_J3_collision.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="L2_J3"
+    type="revolute">
+    <origin
+      xyz="0.032659 0.039518 -0.019917"
+      rpy="0 0 0" />
+    <parent
+      link="Link_L2_J2" />
+    <child
+      link="Link_L2_J3" />
+    <axis
+      xyz="-0.77083 0.63704 0" /> 
+    <limit
+      lower="-2.61"
+      upper="2.61"
+      effort="0.2"
+      velocity="6" />
+    <dynamics
+      damping="0.1"
+      friction="0.01" />
+  </joint>
+  <link
+    name="Link_L3_J1">
+    <inertial>
+      <origin
+        xyz="-0.0174673700669978 -0.0182381386758927 -0.0145229332084455"
+        rpy="0 0 0" />
+      <mass
+        value="0.0133865400425874" />
+      <inertia
+        ixx="1.3811634653099E-06"
+        ixy="-2.1214428685399E-07"
+        ixz="-6.99925547247971E-09"
+        iyy="1.32147675078088E-06"
+        iyz="-2.46147206539854E-09"
+        izz="6.6647149482376E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L3_J1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.796078431372549 0.823529411764706 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L3_J1_collision.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="L3_J1"
+    type="revolute">
+    <origin
+      xyz="-0.0351 -0.03565 0.037075"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="Link_L3_J1" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-0.785"
+      upper="0.785"
+      effort="0.2"
+      velocity="6" />
+    <dynamics
+      damping="0.1"
+      friction="0.01" />
+  </joint>
+  <link
+    name="Link_L3_J2">
+    <inertial>
+      <origin
+        xyz="-0.0254780570539758 -0.00134389311220551 -0.0174692197351079"
+        rpy="0 0 0" />
+      <mass
+        value="0.00732087514249105" />
+      <inertia
+        ixx="2.15121262943305E-06"
+        ixy="2.68786395188291E-07"
+        ixz="-6.16250406450523E-07"
+        iyy="2.09287754908398E-06"
+        iyz="-5.5688235487075E-07"
+        izz="2.60309164714055E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L3_J2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.796078431372549 0.823529411764706 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L3_J2_collision.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="L3_J2"
+    type="revolute">
+    <origin
+      xyz="-0.0083044 -0.032458 -0.009775"
+      rpy="0 0 0" />
+    <parent
+      link="Link_L3_J1" />
+    <child
+      link="Link_L3_J2" />
+    <axis
+      xyz="0.66952 -0.74279 0" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="0.2"
+      velocity="6" />
+    <dynamics
+      damping="0.1"
+      friction="0.01" />
+  </joint>
+  <link
+    name="Link_L3_J3">
+    <inertial>
+      <origin
+        xyz="-0.0130520109599679 0.00969745551706247 -0.0113241494806745"
+        rpy="0 0 0" />
+      <mass
+        value="0.014688985075973" />
+      <inertia
+        ixx="4.09291205022552E-06"
+        ixy="-1.51469586500661E-07"
+        ixz="-4.53905467860851E-07"
+        iyy="4.13442912628089E-06"
+        iyz="-5.3353639453981E-07"
+        izz="5.20437122961728E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L3_J3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L3_J3_collision.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="L3_J3"
+    type="revolute">
+    <origin
+      xyz="-0.030652 -0.027628 -0.036362"
+      rpy="0 0 0" />
+    <parent
+      link="Link_L3_J2" />
+    <child
+      link="Link_L3_J3" />
+    <axis
+      xyz="0.66952 -0.74279 0" />
+    <limit
+      lower="-2.61"
+      upper="2.61"
+      effort="0.2"
+      velocity="6" />
+    <dynamics
+      damping="0.1"
+      friction="0.01" />
+  </joint>
+  <link
+    name="Link_L4_J1">
+    <inertial>
+      <origin
+        xyz="-0.0130255561769351 0.0216295665016213 -0.0145198006848956"
+        rpy="0 0 0" />
+      <mass
+        value="0.013396200197483" />
+      <inertia
+        ixx="1.47009392807998E-06"
+        ixy="1.78212966772561E-07"
+        ixz="-5.8435693590389E-09"
+        iyy="1.23440178640792E-06"
+        iyz="4.19385859642403E-09"
+        izz="6.6765593311769E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L4_J1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.796078431372549 0.823529411764706 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L4_J1_collision.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="L4_J1"
+    type="revolute">
+    <origin
+      xyz="-0.0351 0.03615 0.037075"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="Link_L4_J1" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-0.785"
+      upper="0.785"
+      effort="0.2"
+      velocity="6" />
+    <dynamics
+      damping="0.1"
+      friction="0.01" />
+  </joint>
+  <link
+    name="Link_L4_J2">
+    <inertial>
+      <origin
+        xyz="-0.0285748842075759 0.0119516342248537 -0.00301765758413121"
+        rpy="0 0 0" />
+      <mass
+        value="0.00732087514434877" />
+      <inertia
+        ixx="1.79379874749176E-06"
+        ixy="8.03369845981167E-08"
+        ixz="-1.09782453034998E-07"
+        iyy="1.74022865158099E-06"
+        iyz="1.55050370775973E-07"
+        izz="3.31315442660782E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L4_J2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.796078431372549 0.823529411764706 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L4_J2_collision.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="L4_J2"
+    type="revolute">
+    <origin
+      xyz="-0.00095039 0.03349 -0.009775"
+      rpy="0 0 0" />
+    <parent
+      link="Link_L4_J1" />
+    <child
+      link="Link_L4_J2" />
+    <axis
+      xyz="0.8167 0.57707 0" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="0.2"
+      velocity="6" />
+    <dynamics
+      damping="0.1"
+      friction="0.01" />
+  </joint>
+  <link
+    name="Link_L4_J3">
+    <inertial>
+      <origin
+        xyz="-0.0164174952404414 -0.00439059956908644 -0.0101892376135697"
+        rpy="0 0 0" />
+      <mass
+        value="0.0146889837854071" />
+      <inertia
+        ixx="4.00212926058491E-06"
+        ixy="3.92008653844899E-07"
+        ixz="-7.51205619184213E-07"
+        iyy="3.68636109270746E-06"
+        iyz="1.22049795171847E-06"
+        izz="1.05928781709561E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L4_J3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/yesser/ros2_ws_micro_ros/spider/src/spider/meshes/Link_L4_J3_collision.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="L4_J3"
+    type="revolute">
+    <origin
+      xyz="-0.031531 0.044625 -0.0062809"
+      rpy="0 0 0" />
+    <parent
+      link="Link_L4_J2" />
+    <child
+      link="Link_L4_J3" />
+    <axis
+      xyz="0.8167 0.57707 0" />
+    <limit
+      lower="-2.61"
+      upper="2.61"
+      effort="0.2"
+      velocity="6" />
+    <dynamics
+      damping="0.1"
+      friction="0.01" />
+  </joint>
+
+  <!-- ros2_control interfaces for joints -->
+  <ros2_control name="GazeboSimSystem" type="system">
+    <hardware>
+      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+    </hardware>
+    <joint name="L1_J2">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="L1_J3">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="L2_J2">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="L2_J3">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="L3_J2">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="L3_J3">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="L4_J2">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="L4_J3">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+
+  <!-- Gazebo plugin for ROS 2 control -->
+  <gazebo>
+    <plugin filename="libgz_ros2_control-system.so" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+      <parameters>/home/yesser/ros2_ws_micro_ros/spider/src/spider/config/controllers.yaml</parameters>
+    </plugin>
+  </gazebo>
+</robot>

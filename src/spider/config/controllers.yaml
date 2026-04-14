@@ -1,0 +1,66 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100
+    use_sim_time: true
+    # we need to add the controllers type so the controller manager can load them 
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+    joint_trajectory_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+joint_state_broadcaster:
+  ros__parameters:
+    joints:
+      - L1_J2
+      - L1_J3
+      - L2_J2
+      - L2_J3
+      - L3_J2
+      - L3_J3
+      - L4_J2
+      - L4_J3
+
+joint_trajectory_controller:
+  ros__parameters:
+    joints:
+      - L1_J2
+      - L1_J3
+      - L2_J2
+      - L2_J3
+      - L3_J2
+      - L3_J3
+      - L4_J2
+      - L4_J3
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    allow_partial_joints_goal: true
+    constraints:
+      stopped_velocity_tolerance: 0.01
+      goal_time: 0.0
+      L1_J2:
+        trajectory: 0.5
+        goal: 0.1
+      L1_J3:
+        trajectory: 0.5
+        goal: 0.1
+      L2_J2:
+        trajectory: 0.5
+        goal: 0.1
+      L2_J3:
+        trajectory: 0.5
+        goal: 0.1
+      L3_J2:
+        trajectory: 0.5
+        goal: 0.1
+      L3_J3:
+        trajectory: 0.5
+        goal: 0.1
+      L4_J2:
+        trajectory: 0.5
+        goal: 0.1
+      L4_J3:
+        trajectory: 0.5
+        goal: 0.1

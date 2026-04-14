@@ -39,9 +39,9 @@ The project has successfully transitioned from a static URDF model to a fully co
    ```
 3. **Build & Launch:**
    ```bash
-  colcon build --packages-select spider
-  source install/setup.bash
-  ros2 launch spider launch.py
+   colcon build --packages-select spider
+   source install/setup.bash
+   ros2 launch spider launch.py
    ```
 ## Roadmap & Next Steps
 The ultimate goal of this project is to achieve autonomous locomotion via Reinforcement Learning.

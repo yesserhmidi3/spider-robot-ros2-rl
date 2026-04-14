@@ -35,7 +35,7 @@ The project has successfully transitioned from a static URDF model to a fully co
    ```
 2. **Install Dependencies:**
    ```bash
-  sudo apt install ros-jazzy-ros2-control ros-jazzy-ros2-controllers ros-jazzy-gz-ros2-control
+   sudo apt install ros-jazzy-ros2-control ros-jazzy-ros2-controllers ros-jazzy-gz-ros2-control
    ```
 3. **Build & Launch:**
    ```bash

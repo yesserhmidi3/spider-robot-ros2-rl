@@ -73,19 +73,13 @@ def generate_launch_description():
         output='screen',
     )
 
-    # GUI for joint control
-    '''joint_state_publisher_gui = Node(
-        package='joint_state_publisher_gui',
-        executable='joint_state_publisher_gui',
-        output='screen'
-    )'''
 
     # RQT GUI for joint control (alternative to joint_state_publisher_gui)
-    rqt_joint_trajectory_controller = Node(
+    '''rqt_joint_trajectory_controller = Node(
         package='rqt_joint_trajectory_controller',
         executable='rqt_joint_trajectory_controller',
         name='rqt_joint_trajectory_controller',
-    )
+    )''' #commented this to used control_node intead of rqt gui interface to control joints
 
     return LaunchDescription([
         robot_state_publisher,
@@ -95,5 +89,5 @@ def generate_launch_description():
         spawn_jsb,  # Broadcast joint states
         spawn_controller,  # Joint trajectory controller
         #joint_state_publisher_gui  # GUI with sliders
-        rqt_joint_trajectory_controller # RQT GUI for joint control
+        #rqt_joint_trajectory_controller # RQT GUI for joint control
     ])

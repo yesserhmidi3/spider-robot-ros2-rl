@@ -10,6 +10,11 @@ This repository tracks the development of a quadruped spider robot simulation bu
 
 ### Step 1: Mechanical Export (SolidWorks to URDF)
 The project began by designing the robot in SolidWorks. To ensure realistic physics in Gazebo, I used the SW2URDF exporter plugin to carefully capture the exact mass, collision boundaries, and inertias (including realistic metrics for SG90 servos). 
+
+<p align="center">
+  <img src="media/step1.png" width="600">
+</p>
+
 * *Resource:* I followed this 3-part YouTube tutorial series ([Part 1](https://www.youtube.com/watch?v=Id8zVHrQSlE), [Part 2](https://www.youtube.com/watch?v=SDr6ru8R0qc), [Part 3](https://www.youtube.com/watch?v=wxxRuM_qZtE&t=777s)) for the exportation process.
 
 ### Step 2: ROS 2 Control & GUI Validation

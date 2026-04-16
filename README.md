@@ -15,7 +15,7 @@ The project began by designing the robot in SolidWorks. To ensure realistic phys
 ### Step 2: ROS 2 Control & GUI Validation
 Once the URDF was in Gazebo, I configured a hardware abstraction layer using `gz_ros2_control`. I set up the `joint_state_broadcaster` and a `joint_trajectory_controller` for 8-DOF position control. I initially tested the kinematics and URDF limits using the `rqt_joint_trajectory_controller` GUI to ensure the spider could move.
 
-![Step 2 GUI Validation](step2.gif)
+![Step 2 GUI Validation](media/step2.gif)
 
 ### Step 3: Validating the Action/Observation Pipeline (Current State)
 To prepare for Reinforcement Learning, I needed to guarantee that Python could communicate flawlessly with Gazebo. I built an initial prototype control node (`control.py`) to serve as a stand-in for the future AI agent:
@@ -23,7 +23,7 @@ To prepare for Reinforcement Learning, I needed to guarantee that Python could c
 * **Simulating Actions:** Instead of an AI policy, it takes manual terminal inputs, formats them with zero-velocities and accurate time stamps, and publishes them to the trajectory controller.
 * **Result:** The two-way communication bridge is 100% verified. In the upcoming phase, the manual terminal input in `control.py` will be replaced by a Gymnasium-compatible wrapper and a neural network policy.
 
-![Step 3 Terminal Control](step3.gif)
+![Step 3 Terminal Control](media/step3.gif)
 
 ## Tech Stack
 * **Middleware:** ROS 2 Jazzy Jalisco

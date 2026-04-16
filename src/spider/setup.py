@@ -26,7 +26,7 @@ setup(
     maintainer='yesser',
     maintainer_email='yesser.hmidi3@gmail.com',
     description='Spider robot description and simulation',
-    license='TODO: License declaration',
+    license='MIT',
     extras_require={
         'test': [
             'pytest',

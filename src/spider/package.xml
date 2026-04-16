@@ -3,9 +3,9 @@
 <package format="3">
   <name>spider</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>Spider robot description and simulation using ROS 2 and Gazebo.</description>
   <maintainer email="yesser.hmidi3@gmail.com">yesser</maintainer>
-  <license>TODO: License declaration</license>
+  <license>MIT</license>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

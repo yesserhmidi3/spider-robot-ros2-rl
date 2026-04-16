@@ -79,7 +79,7 @@ def generate_launch_description():
         package='rqt_joint_trajectory_controller',
         executable='rqt_joint_trajectory_controller',
         name='rqt_joint_trajectory_controller',
-    )''' #commented this to used control_node intead of rqt gui interface to control joints
+    )'''#commented this to used control_node intead of rqt gui interface to control joints
 
     return LaunchDescription([
         robot_state_publisher,
@@ -88,6 +88,6 @@ def generate_launch_description():
         controller_manager,
         spawn_jsb,  # Broadcast joint states
         spawn_controller,  # Joint trajectory controller
-        #joint_state_publisher_gui  # GUI with sliders
+        #joint_state_publisher_gui,  # GUI with sliders
         #rqt_joint_trajectory_controller # RQT GUI for joint control
     ])

@@ -36,7 +36,7 @@ To train the RL agent, I created a custom Gymnasium environment (`spider_env.py`
 In our case, we applied these 4 steps using ROS 2 nodes and Gazebo physics:
 
 1. **Initialize Environment (`def __init__(self)`):** We define the action and observation limits here. We also set up our **Bridge Architecture**: a ROS 2 node runs on a separate background thread to continuously read sensor data (`/joint_states` and `/imu`) without blocking the RL algorithm's dictatorial control loop.
-2. **Constructing Observations (`def _get_obs(self)`):** The environment gathers 14 variables (12 joint angles + Pitch & Roll). Gazebo outputs Quaternions to avoid Gimbal lock, so I implemented standard 3D spatial math to convert them into Euler angles for the agent's observation array.
+2. **Constructing Observations (`def _get_obs(self)`):** The environment gathers 14 variables (12 joint angles + Pitch & Roll). Crucially, we exclude the absolute X-coordinate from the agent's "vision" to ensure it learns a universal walking gait rather than memorizing its position in the world. I implemented standard 3D spatial math to convert Gazebo's Quaternions into Euler angles for the observation array.
 3. **Create a Reset Function (`def reset(self, seed=None, options=None)`):** This function utilizes Python's `subprocess` to trigger Gazebo's `/world/empty/set_pose` service, instantly teleporting the robot back to the center and resetting its limbs to a default standing pose after a fall.
 4. **Create a Step Function (`def step(self, action)`):** The `step()` function applies the agent's joint commands, waits for the physics to update, and calculates the survival rewards.
 
@@ -58,7 +58,7 @@ source rl_env/bin/activate
 # Install RL libraries
 pip install gymnasium stable-baselines3[extra]
 ## You can't run normal colcon build , you have to use :
-python -m colcon build
+colcon build --packages-select spider --symlink-install
 ```
 
 ## Tech Stack

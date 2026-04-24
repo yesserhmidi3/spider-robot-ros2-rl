@@ -13,6 +13,7 @@ from gymnasium import spaces
 # ROS 2 message imports
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint 
 from sensor_msgs.msg import Imu, JointState
+from geometry_msgs.msg import Pose #Pose for velocity feedback
 
 
 def euler_from_quaternion(x, y, z, w):    #Convert IMU quaternion to Euler angles (Roll, Pitch, Yaw)
@@ -40,6 +41,7 @@ class SpiderROSNode(Node): # Same as control.py just added the IMU for body orie
         self.joint_pub = self.create_publisher(JointTrajectory, '/joint_trajectory_controller/joint_trajectory', 10)
         self.joint_sub = self.create_subscription(JointState, '/joint_states', self.joint_callback, 10)
         self.imu_sub = self.create_subscription(Imu, '/imu', self.imu_callback, 10)
+        self.pose_sub = self.create_subscription(Pose, '/model/spider_robot/pose', self.pose_callback, 10)
 
         self.joint_names = [
             'L1_J1', 'L1_J2', 'L1_J3', 
@@ -53,6 +55,8 @@ class SpiderROSNode(Node): # Same as control.py just added the IMU for body orie
         self.current_pitch = 0.0 
         self.current_roll = 0.0
 
+        self.current_x = 0.0  #current position
+
     def joint_callback(self, msg):
         for i, name in enumerate(self.joint_names):
             if name in msg.name:
@@ -64,6 +68,9 @@ class SpiderROSNode(Node): # Same as control.py just added the IMU for body orie
         roll, pitch, _ = euler_from_quaternion(q.x, q.y, q.z, q.w)
         self.current_roll = roll
         self.current_pitch = pitch 
+
+    def pose_callback(self, msg):
+        self.current_x = msg.position.x
 
     def send_action(self, action_array): #Formats RL numpy array into a ROS 2 Trajectory message
         msg = JointTrajectory()
@@ -105,6 +112,8 @@ class SpiderEnv(gym.Env):
             0.0, 0.4, 0.6
         ], dtype=np.float32)
 
+        self.previous_x = 0.0 #intialize x coordinate 
+
     def _get_obs(self):#Gathers the latest data from the ROS thread to feed to the RL
         joints = self.node.current_joint_positions
         orientation = np.array([self.node.current_pitch, self.node.current_roll])
@@ -128,6 +137,8 @@ class SpiderEnv(gym.Env):
 
         # Step 3: Wait for Gazebo physics to settle (robot dropping to the floor)
         time.sleep(0.5) 
+
+        self.previous_x = self.node.current_x
         
         obs = self._get_obs()
         return obs, {}
@@ -141,6 +152,12 @@ class SpiderEnv(gym.Env):
         
         # 3. Read new states
         obs = self._get_obs()
+
+        # VELOCITY MATH
+        current_x = self.node.current_x
+        # Velocity = Distance / Time (our time.sleep is 0.1)
+        forward_velocity = (current_x - self.previous_x) / 0.1 
+        self.previous_x = current_x
         
         # 4. Did the robot fall over?
         terminated = False
@@ -149,9 +166,13 @@ class SpiderEnv(gym.Env):
             terminated = True
             
         # 5. Calculate how good that action was
-        reward = 0.0
-        if not terminated:
-            reward = 1.0 
+        if terminated:
+            # Harsh penalty for falling to discourage "diving" forward
+            reward = -10.0
+        else:
+            # 1.0 point for staying alive + bonus points for moving forward
+            # We multiply velocity by 10.0 to make the number big enough for the agent to care
+            reward = 1.0 + (forward_velocity * 10.0)
             
         truncated = False 
         info = {}

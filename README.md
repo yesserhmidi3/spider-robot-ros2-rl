@@ -22,7 +22,7 @@ Once the URDF was in Gazebo, I configured a hardware abstraction layer using `gz
 
 ![Step 2 GUI Validation](media/step2.gif)
 
-### Step 3: Validating the Action/Observation Pipeline (Current State)
+### Step 3: Validating the Action/Observation Pipeline
 To prepare for Reinforcement Learning, I needed to guarantee that Python could communicate flawlessly with Gazebo. I built an initial prototype control node (`control.py`) to serve as a stand-in for the future RL agent:
 * **Simulating Observations:** It subscribes to `/joint_states` to read the robot's current position.
 * **Simulating Actions:** Instead of an RL policy, it takes manual terminal inputs, formats them with zero-velocities and accurate time stamps, and publishes them to the trajectory controller.

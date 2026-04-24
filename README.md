@@ -30,6 +30,14 @@ To prepare for Reinforcement Learning, I needed to guarantee that Python could c
 
 ![Step 3 Terminal Control](media/step3.gif)
 
+### Step 4: Environment Wrapping gymnauim
+Creted virtual enviroment in "/home/yesser/venvs"
+python3 -m venv --system-site-packages rl_env
+source rl_env/bin/activate
+pip install gymnasium stable-baselines3[extra]
+//(Note: The [extra] tag installs TensorBoard, which will let us see beautiful graphs of your spider learning later).//
+python -m colcon build to colcon build
+
 ## Tech Stack
 * **Middleware:** ROS 2 Jazzy Jalisco
 * **Simulator:** Gazebo Harmonic (GZ Sim)

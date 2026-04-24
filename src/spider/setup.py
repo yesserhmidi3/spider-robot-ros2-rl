@@ -35,6 +35,7 @@ setup(
     entry_points={
         'console_scripts': [
             'control_node = spider.control:main',
+            'train_node = spider.train:main',
         ],
     },
 )

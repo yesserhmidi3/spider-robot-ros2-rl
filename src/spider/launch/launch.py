@@ -57,6 +57,8 @@ def generate_launch_description():
         output='screen',
     )
 
+    
+
     # Spawn joint state broadcaster (broadcasts joint states from Gazebo)
     spawn_jsb = Node(
         package='controller_manager',
@@ -81,6 +83,16 @@ def generate_launch_description():
         name='rqt_joint_trajectory_controller',
     )'''#commented this to used control_node intead of rqt gui interface to control joints
 
+    #IMU bridge
+    bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        arguments=[
+            '/imu@sensor_msgs/msg/Imu@gz.msgs.IMU'
+        ],
+        output='screen'
+    ) 
+
     return LaunchDescription([
         robot_state_publisher,
         gazebo,
@@ -88,6 +100,7 @@ def generate_launch_description():
         controller_manager,
         spawn_jsb,  # Broadcast joint states
         spawn_controller,  # Joint trajectory controller
+        bridge, #IMU bridge
         #joint_state_publisher_gui,  # GUI with sliders
         #rqt_joint_trajectory_controller # RQT GUI for joint control
     ])

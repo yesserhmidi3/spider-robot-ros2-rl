@@ -11,24 +11,32 @@ controller_manager:
 joint_state_broadcaster:
   ros__parameters:
     joints:
+      - L1_J1
       - L1_J2
       - L1_J3
+      - L2_J1
       - L2_J2
       - L2_J3
+      - L3_J1
       - L3_J2
       - L3_J3
+      - L4_J1
       - L4_J2
       - L4_J3
 
 joint_trajectory_controller:
   ros__parameters:
     joints:
+      - L1_J1
       - L1_J2
       - L1_J3
+      - L2_J1
       - L2_J2
       - L2_J3
+      - L3_J1
       - L3_J2
       - L3_J3
+      - L4_J1
       - L4_J2
       - L4_J3
     command_interfaces:
@@ -40,10 +48,16 @@ joint_trajectory_controller:
     constraints:
       stopped_velocity_tolerance: 0.01
       goal_time: 0.0
+      L1_J1:
+        trajectory: 0.5
+        goal: 0.1
       L1_J2:
         trajectory: 0.5
         goal: 0.1
       L1_J3:
+        trajectory: 0.5
+        goal: 0.1
+      L2_J1:
         trajectory: 0.5
         goal: 0.1
       L2_J2:
@@ -52,10 +66,16 @@ joint_trajectory_controller:
       L2_J3:
         trajectory: 0.5
         goal: 0.1
+      L3_J1:
+        trajectory: 0.5
+        goal: 0.1
       L3_J2:
         trajectory: 0.5
         goal: 0.1
       L3_J3:
+        trajectory: 0.5
+        goal: 0.1
+      L4_J1:
         trajectory: 0.5
         goal: 0.1
       L4_J2:

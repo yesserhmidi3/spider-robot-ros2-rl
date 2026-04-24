@@ -790,12 +790,22 @@
     <hardware>
       <plugin>gz_ros2_control/GazeboSimSystem</plugin>
     </hardware>
+    <joint name="L1_J1">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
     <joint name="L1_J2">
       <command_interface name="position"/>
       <state_interface name="position"/>
       <state_interface name="velocity"/>
     </joint>
     <joint name="L1_J3">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="L2_J1">
       <command_interface name="position"/>
       <state_interface name="position"/>
       <state_interface name="velocity"/>
@@ -810,12 +820,22 @@
       <state_interface name="position"/>
       <state_interface name="velocity"/>
     </joint>
+    <joint name="L3_J1">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
     <joint name="L3_J2">
       <command_interface name="position"/>
       <state_interface name="position"/>
       <state_interface name="velocity"/>
     </joint>
     <joint name="L3_J3">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="L4_J1">
       <command_interface name="position"/>
       <state_interface name="position"/>
       <state_interface name="velocity"/>
@@ -831,6 +851,18 @@
       <state_interface name="velocity"/>
     </joint>
   </ros2_control>
+
+  
+  <gazebo reference="base_footprint">
+    <sensor name="imu_sensor" type="imu">
+      <always_on>1</always_on>
+      <update_rate>100</update_rate>
+      <topic>imu</topic>
+      <gz_frame_id>base_footprint</gz_frame_id>
+      <visualize>true</visualize>
+     <!--  <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/> -->
+    </sensor>
+  </gazebo>
 
   <!-- Gazebo plugin for ROS 2 control -->
   <gazebo>

@@ -46,7 +46,7 @@ In our case, we applied these 4 steps using ROS 2 nodes and Gazebo physics:
 On modern Ubuntu systems, we must use a virtual environment to install new Python packages (like Gymnasium and Stable Baselines3) so we don't interfere with or break the system-wide Python files.
 ```bash
 # Create and activate the virtual environment
-cd ~/ros2_ws
+cd ~/venvs
 python3 -m venv --system-site-packages rl_env
 source rl_env/bin/activate
 

@@ -40,6 +40,11 @@ In our case, we applied these 4 steps using ROS 2 nodes and Gazebo physics:
 3. **Create a Reset Function (`def reset(self, seed=None, options=None)`):** This function utilizes Python's `subprocess` to trigger Gazebo's `/world/empty/set_pose` service, instantly teleporting the robot back to the center and resetting its limbs to a default standing pose after a fall.
 4. **Create a Step Function (`def step(self, action)`):** The `step()` function applies the agent's joint commands, waits for the physics to update, and calculates the survival rewards.
 
+**Testing the Wrapper:**
+To verify that the environment wrapping works correctly, I manually triggered the `reset()` function from a Python shell. As shown below, the robot successfully teleports back to the origin and snaps into its default standing pose, proving the ROS 2 / Gymnasium bridge is fully operational.
+
+![Step 4 Reset Test](media/step4.gif)
+
 > **Important Note:** Even though we wrote the custom logic ourselves, we must name the functions exactly as the API dictates (`step`, `reset`, etc.) so that the Stable Baselines3 PPO algorithm can recognize and interact with our environment.
 
 **RL Virtual Environment Setup:**

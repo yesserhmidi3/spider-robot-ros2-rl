@@ -878,7 +878,7 @@
       <publish_model_pose>true</publish_model_pose>
       
       <publish_nested_model_pose>false</publish_nested_model_pose>
-      <publish_link_pose>false</publish_link_pose> <!--without this it won't work , we need main body pos not all joints pos -->
+      <publish_link_pose>false</publish_link_pose> <!--without this it won't work , we need only main body pos not all joints pos -->
       <publish_visual_pose>false</publish_visual_pose>
       <publish_collision_pose>false</publish_collision_pose>
       

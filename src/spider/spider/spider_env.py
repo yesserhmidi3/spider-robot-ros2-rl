@@ -56,6 +56,8 @@ class SpiderROSNode(Node): # Same as control.py just added the IMU for body orie
         self.current_roll = 0.0
 
         self.current_x = 0.0  #current position
+        self.current_y = 0.0
+        self.current_z = 0.0 #initialize height
 
     def joint_callback(self, msg):
         for i, name in enumerate(self.joint_names):
@@ -71,6 +73,8 @@ class SpiderROSNode(Node): # Same as control.py just added the IMU for body orie
 
     def pose_callback(self, msg):
         self.current_x = msg.position.x
+        self.current_y = msg.position.y
+        self.current_z = msg.position.z
 
     def send_action(self, action_array): #Formats RL numpy array into a ROS 2 Trajectory message
         msg = JointTrajectory()
@@ -114,6 +118,10 @@ class SpiderEnv(gym.Env):
 
         self.previous_x = 0.0 #intialize x coordinate 
 
+        # added this for the reset , resets after 500 steps and try again 
+        self.max_steps = 500
+        self.current_step = 0
+
     def _get_obs(self):#Gathers the latest data from the ROS thread to feed to the RL
         joints = self.node.current_joint_positions
         orientation = np.array([self.node.current_pitch, self.node.current_roll])
@@ -131,7 +139,7 @@ class SpiderEnv(gym.Env):
             "gz service -s /world/empty/set_pose "
             "--reqtype gz.msgs.Pose "
             "--reptype gz.msgs.Boolean "
-            "--req 'name: \"spider_robot\", position: {x: 0, y: 0, z: 0.2}, orientation: {x: 0, y: 0, z: 0, w: 1}'"
+            "--req 'name: \"spider_robot\", position: {x: 0, y: 0, z: 0.085}, orientation: {x: 0, y: 0, z: 0, w: 1}'"
         )
         subprocess.run(reset_cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) # we used subprocess to open new terminal and do gz service immediatly without waiting for ros2
 
@@ -139,6 +147,8 @@ class SpiderEnv(gym.Env):
         time.sleep(0.5) 
 
         self.previous_x = self.node.current_x
+
+        self.current_step = 0 # reset the counter
         
         obs = self._get_obs()
         return obs, {}
@@ -164,6 +174,10 @@ class SpiderEnv(gym.Env):
         # If pitched forward/backward OR rolled side-to-side more than ~45 degrees (0.8 rad)
         if abs(self.node.current_pitch) > 0.8 or abs(self.node.current_roll) > 0.8: 
             terminated = True
+
+        # is off the ground when standing normally. 
+        '''if self.node.current_z < 0.04:  #0.07... is the normal standing position checked it by : "ros2 topic echo /model/spider_robot/pose"
+            terminated = True #tried  this : kept reseting , decided to do the height as a punishment not a full rest'''
             
         # 5. Calculate how good that action was
         if terminated:
@@ -172,12 +186,34 @@ class SpiderEnv(gym.Env):
         else:
             # 1.0 point for staying alive + bonus points for moving forward
             # We multiply velocity by 10.0 to make the number big enough for the agent to care
-            reward = 1.0 + (forward_velocity * 10.0)
+            # Base reward: Survival + Velocity
+            #base_reward = 1.0 + (forward_velocity * 10.0)
+            base_reward = 0.1 + (forward_velocity * 50.0) #nerfed the standing still and buffed the forward velocity because it stood still in the test
             
-        truncated = False 
-        info = {}
+            #lowered the penalties from 0.5 and and 0.05 to 0.2 and 0.01
+            # Stability Penalty: Punish it for wobbling (max penalty is ~0.8)
+            stability_penalty = (abs(self.node.current_pitch) + abs(self.node.current_roll)) * 0.05
+            
+            # Energy Penalty: Punish large, aggressive joint commands
+            energy_penalty = sum([abs(a) for a in action]) * 0.01
 
+            height_penalty = 0.0
+            if self.node.current_z < 0.03:
+                height_penalty = 1.0  # added this height penalty
+            
+            # Final calculation
+            reward = base_reward - stability_penalty - energy_penalty - height_penalty
+
+            #added the reset after 500 steps
+        self.current_step += 1
+        if self.current_step >= self.max_steps:
+            truncated = True
+        else:
+            truncated = False
+
+        info = {}
         return obs, reward, terminated, truncated, info
+
 
     def close(self):
         rclpy.shutdown()

@@ -61,6 +61,135 @@ pip install gymnasium stable-baselines3[extra]
 colcon build --packages-select spider --symlink-install
 ```
 
+### Step 5: Training the PPO Agent & Reward Shaping (Phase 2)
+
+With the environment ready, I implemented the training pipeline using Stable Baselines3.
+
+#### 1. Reward Shaping
+Initially, I used a simple reward function: `base_reward = 1.0 + (forward_velocity * 10.0)`. However, the RL agent quickly found a loophole: it would simply stand perfectly still to endlessly farm the `1.0` survival reward, and when it did walk, it dragged its belly on the floor. 
+
+To fix this, I nerfed the survival reward, heavily buffed the forward velocity multiplier, and added a strict penalty if the robot's Z-height dropped too low. Here is the updated `step()` function inside `spider_env.py`:
+
+```python
+    def step(self, action):
+        # 1. Send the RL's chosen action to Gazebo
+        self.node.send_action(action)
+        time.sleep(0.1) 
+        
+        # 2. Read new states & calculate velocity
+        obs = self._get_obs()
+        current_x = self.node.current_x
+        forward_velocity = (current_x - self.previous_x) / 0.1 
+        self.previous_x = current_x
+        
+        # 3. Fall Detection
+        terminated = False
+        if abs(self.node.current_pitch) > 0.8 or abs(self.node.current_roll) > 0.8: 
+            terminated = True
+            
+        # 4. Calculate Rewards
+        if terminated:
+            reward = -10.0 # Harsh penalty for falling
+        else:
+            base_reward = 0.1 + (forward_velocity * 50.0) 
+            
+            # Penalties
+            stability_penalty = (abs(self.node.current_pitch) + abs(self.node.current_roll)) * 0.05
+            energy_penalty = sum([abs(a) for a in action]) * 0.01
+            height_penalty = 1.0 if self.node.current_z < 0.03 else 0.0
+            
+            reward = base_reward - stability_penalty - energy_penalty - height_penalty
+
+        # 5. Episode limit
+        self.current_step += 1
+        truncated = True if self.current_step >= self.max_steps else False
+
+        return obs, reward, terminated, truncated, {}
+```
+
+#### 2. The Training Script (`train.py`)
+To train efficiently, I created `train.py`. It utilizes a `CheckpointCallback` to save a backup brain every 10,000 steps (preventing catastrophic forgetting). Note that I set `device="cpu"`, as CPU processing proved faster for this specific MLP setup.
+
+> **💡 Pro-Tip for Training:** Always run Gazebo in **Headless Mode** when training! In your `launch.py`, change the argument to `launch_arguments={'gz_args': '-r -s empty.sdf'}.items()`. The `-s` runs the server without the 3D GUI, freeing up massive amounts of CPU/GPU power.
+
+```python
+import os
+from stable_baselines3 import PPO
+from stable_baselines3.common.callbacks import CheckpointCallback 
+from spider_env import SpiderEnv 
+
+def train():
+    env = SpiderEnv()
+    MODEL_PATH = "spider_ppo_model_latest.zip"
+    
+    if os.path.exists(MODEL_PATH):
+        print(f"--- SAVED MODEL FOUND! Loading {MODEL_PATH}... ---")
+        model = PPO.load(MODEL_PATH, env=env, tensorboard_log="./ppo_spider_logs/", device="cpu") 
+    else:
+        print("--- NO SAVED MODEL FOUND. Starting a new brain from scratch... ---")
+        model = PPO("MlpPolicy", env, verbose=1, learning_rate=0.0003, tensorboard_log="./ppo_spider_logs/", device="cpu")
+
+    checkpoint_callback = CheckpointCallback(save_freq=10000, save_path='./models/', name_prefix='spider_brain')
+    TIMESTEPS = 100000
+    
+    print(f"--- STARTING OVERNIGHT RUN FOR {TIMESTEPS} STEPS ---")
+    try:
+        model.learn(total_timesteps=TIMESTEPS, reset_num_timesteps=False, callback=checkpoint_callback) 
+    except KeyboardInterrupt:
+        print("\n--- TRAINING INTERRUPTED BY USER! SAVING PROGRESS... ---")
+    finally:
+        model.save("spider_ppo_model_latest")
+        env.close()
+
+if __name__ == '__main__':
+    train()
+```
+
+#### 3. The Testing Script (`test.py`)
+To watch the robot in action, I use `test.py`. It explicitly sets `deterministic=True` so the AI relies purely on its learned policy rather than guessing randomly. 
+
+```python
+import time
+from stable_baselines3 import PPO
+from spider_env import SpiderEnv
+
+def test():
+    env = SpiderEnv()
+    
+    # Load a specific successful checkpoint
+    MODEL_PATH = "models/spider_brain_677761_steps.zip"
+    model = PPO.load(MODEL_PATH)
+    
+    obs, info = env.reset()
+    print("--- STARTING TEST RUN ---")
+
+    try:
+        while True:
+            # deterministic=True is CRITICAL for evaluating actual learned behavior
+            action, _states = model.predict(obs, deterministic=True)
+            obs, reward, terminated, truncated, info = env.step(action)
+            
+            if terminated or truncated:
+                obs, info = env.reset()
+                
+    except KeyboardInterrupt:
+        print("\n--- TEST STOPPED ---")
+    finally:
+        env.close()
+
+if __name__ == '__main__':
+    test()
+```
+
+#### 4. Current Best Results
+The current best checkpoint is **`spider_brain_677761_steps`**. 
+
+As seen in the GIF below, the spider has figured out how to stay upright and move. However, the current locomotion strategy involves moving in circles, and one of the leg joints remains highly stiff. This proves the system works, but indicates that the reward function and joint penalties need further shaping in the next phase!
+
+![Best Run Step 677k](media/spider_brain_677761.gif) 
+
+---
+
 ## Tech Stack
 * **Middleware:** ROS 2 Jazzy Jalisco
 * **Simulator:** Gazebo Harmonic (GZ Sim)

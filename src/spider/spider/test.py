@@ -8,7 +8,8 @@ def test():
     
     # 2. Load the trained brain
     print("--- LOADING TRAINED MODEL ---")
-    MODEL_PATH = "spider_ppo_model_latest.zip"
+    #MODEL_PATH = "spider_ppo_model_latest.zip"
+    MODEL_PATH = "models/spider_brain_677761_steps.zip"
     print(f"Loading model from {MODEL_PATH}...")
     model = PPO.load(MODEL_PATH)
     

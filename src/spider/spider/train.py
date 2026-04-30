@@ -13,7 +13,7 @@ def train():
     if os.path.exists(MODEL_PATH):
         print(f"--- SAVED MODEL FOUND! Loading {MODEL_PATH}... ---")
         # Notice we have to pass the env and tensorboard_log again so it knows where to keep writing
-        model = PPO.load(MODEL_PATH, env=env, tensorboard_log="./ppo_spider_logs/")
+        model = PPO.load(MODEL_PATH, env=env, tensorboard_log="./ppo_spider_logs/", device="cpu") #added this to make it work on cpu (faster)
     else:
         print("--- NO SAVED MODEL FOUND. Starting a new brain from scratch... ---")
         # 2. Define the AI Model (PPO)
@@ -24,7 +24,8 @@ def train():
             env, 
             verbose=1, 
             learning_rate=0.0003, 
-            tensorboard_log="./ppo_spider_logs/"
+            tensorboard_log="./ppo_spider_logs/",
+            device="cpu" #added this to make it work on cpu (faster)
         )
     # This will save a backup every 10,000 steps inside a folder called "models"
     checkpoint_callback = CheckpointCallback(

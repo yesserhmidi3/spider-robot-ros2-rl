@@ -172,26 +172,26 @@ if __name__ == '__main__':
 Watching the agent learn over hundreds of thousands of steps is one of the most rewarding parts of this project. Below is the visual evolution of the spider's policy:
 
 <p align="center">
-  <b>Early Training (~100k Steps)</b><br>
-  <i>The agent struggles with balance and frequently triggers the pitch/roll fall penalties.</i><br>
+  <b>Phase 1: High-Frequency Flailing</b><br>
+  <i>The earliest exploratory moves are chaotic and unstable. The agent flails wildly on its back with rapid, high-amplitude joint oscillations, instantly triggering fall penalties while maximizing joint energy output.</i><br>
   <img src="media/step5.gif" width="45%">
 </p>
 
 <p align="center">
-  <b>Mid Training (~300k Steps)</b><br>
-  <i>The spider learns to stabilize itself and avoid the Z-height penalty by standing up, but movement is erratic.</i><br>
+  <b>Phase 2: Prone Scrambling ("Belly Surfing")</b><br>
+  <i>To avoid falling, the agent adopts a low posture, maximizing survival time by scrambling weakly while staying prone. It discovers that being "pancaked" on its belly minimizes wobbling penalties without fully mastering ground contact.</i><br>
   <img src="media/step5_2.gif" width="45%">
 </p>
 
 <p align="center">
-  <b>Late Training (~500k Steps)</b><br>
-  <i>The agent discovers that moving forward yields high rewards and begins combining leg movements.</i><br>
+  <b>Phase 3: Coordinated Scooting</b><br>
+  <i>The agent begins coordinating its leg cycles to generate meaningful ground push. It learns to lift the main body off the ground to slide or "scoot" forward while abdomen-dragging, marking the first signs of intentional forward motion.</i><br>
   <img src="media/step5_3.gif" width="45%">
 </p>
 
 <p align="center">
-  <b>Late Training (~500k Steps)</b><br>
-  <i>The agent discovers that moving forward yields high rewards and begins combining leg movements.</i><br>
+  <b>Phase 4: Hierarchical Stomping/Stepping</b><br>
+  <i>A breakthrough in stability: the spider stands up fully. It has learned ground support but struggles with continuous locomotion, adopting a halting, jerky "stomping" pattern with high impact steps while managing balance.</i><br>
   <img src="media/step5_4.gif" width="45%">
 </p>
 
@@ -199,9 +199,9 @@ Watching the agent learn over hundreds of thousands of steps is one of the most 
 
 **Current Best Checkpoint: `spider_brain_677761_steps`**
 
-At nearly 680,000 steps, the spider has successfully figured out how to stay upright and generate continuous forward velocity. 
+This checkpoint represents the culmination of nearly 680,000 steps of training. The spider successfully demonstrates coordinated, high-speed quadruped locomotion, effectively keeping its body upright while maximizing the forward velocity reward.
 
-*Observation:* While it moves effectively, the current locomotion strategy involves moving in a circular pattern, and one of the leg joints remains highly stiff to act as a pivot. This proves the RL bridge is fully operational, but indicates that the reward function and joint energy penalties need further tuning in the next phase to achieve a straight, symmetrical walk!
+*Observed exploit:* While the agent moves effectively, it appears to have discovered a degenerate gait where it keeps one leg joint passive and highly stiff to serve as a central pivot point, using the others to scramble and rotate in a circle. This gait effectively achieves forward distance for the reward while minimizing energy penalty on the locked joint. This proves the RL bridge is fully operational, but highlights the need for Reward Shaping (Phase 3) to enforce straight, symmetrical, and symmetrical walking patterns!
 
 <p align="center">
   <img src="media/step5_5.gif" width="70%">

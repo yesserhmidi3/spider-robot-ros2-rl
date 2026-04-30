@@ -167,12 +167,45 @@ if __name__ == '__main__':
     test()
 ```
 
-#### 4. Current Best Results
-The current best checkpoint is **`spider_brain_677761_steps`**. 
+#### 4. Training Progression & Current Best Results
 
-As seen in the GIF below, the spider has figured out how to stay upright and move. However, the current locomotion strategy involves moving in circles, and one of the leg joints remains highly stiff. This proves the system works, but indicates that the reward function and joint penalties need further shaping in the next phase!
+Watching the agent learn over hundreds of thousands of steps is one of the most rewarding parts of this project. Below is the visual evolution of the spider's policy:
 
-![Best Run Step 677k](media/spider_brain_677761.gif) 
+<p align="center">
+  <b>Early Training (~100k Steps)</b><br>
+  <i>The agent struggles with balance and frequently triggers the pitch/roll fall penalties.</i><br>
+  <img src="media/step5.gif" width="45%">
+</p>
+
+<p align="center">
+  <b>Mid Training (~300k Steps)</b><br>
+  <i>The spider learns to stabilize itself and avoid the Z-height penalty by standing up, but movement is erratic.</i><br>
+  <img src="media/step5_2.gif" width="45%">
+</p>
+
+<p align="center">
+  <b>Late Training (~500k Steps)</b><br>
+  <i>The agent discovers that moving forward yields high rewards and begins combining leg movements.</i><br>
+  <img src="media/step5_3.gif" width="45%">
+</p>
+
+<p align="center">
+  <b>Late Training (~500k Steps)</b><br>
+  <i>The agent discovers that moving forward yields high rewards and begins combining leg movements.</i><br>
+  <img src="media/step5_4.gif" width="45%">
+</p>
+
+---
+
+**Current Best Checkpoint: `spider_brain_677761_steps`**
+
+At nearly 680,000 steps, the spider has successfully figured out how to stay upright and generate continuous forward velocity. 
+
+*Observation:* While it moves effectively, the current locomotion strategy involves moving in a circular pattern, and one of the leg joints remains highly stiff to act as a pivot. This proves the RL bridge is fully operational, but indicates that the reward function and joint energy penalties need further tuning in the next phase to achieve a straight, symmetrical walk!
+
+<p align="center">
+  <img src="media/step5_5.gif" width="70%">
+</p>
 
 ---
 

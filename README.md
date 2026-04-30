@@ -169,31 +169,16 @@ if __name__ == '__main__':
 
 #### 4. Training Progression & Current Best Results
 
-Watching the agent learn over hundreds of thousands of steps is one of the most rewarding parts of this project. Below is the visual evolution of the spider's policy:
-
-<p align="center">
-  <b>Phase 1: High-Frequency Flailing</b><br>
-  <i>The earliest exploratory moves are chaotic and unstable. The agent flails wildly on its back with rapid, high-amplitude joint oscillations, instantly triggering fall penalties while maximizing joint energy output.</i><br>
-  <img src="media/step5.gif" width="45%">
-</p>
-
-<p align="center">
-  <b>Phase 2: Prone Scrambling ("Belly Surfing")</b><br>
-  <i>To avoid falling, the agent adopts a low posture, maximizing survival time by scrambling weakly while staying prone. It discovers that being "pancaked" on its belly minimizes wobbling penalties without fully mastering ground contact.</i><br>
-  <img src="media/step5_2.gif" width="45%">
-</p>
-
-<p align="center">
-  <b>Phase 3: Coordinated Scooting</b><br>
-  <i>The agent begins coordinating its leg cycles to generate meaningful ground push. It learns to lift the main body off the ground to slide or "scoot" forward while abdomen-dragging, marking the first signs of intentional forward motion.</i><br>
-  <img src="media/step5_3.gif" width="45%">
-</p>
-
-<p align="center">
-  <b>Phase 4: Hierarchical Stomping/Stepping</b><br>
-  <i>A breakthrough in stability: the spider stands up fully. It has learned ground support but struggles with continuous locomotion, adopting a halting, jerky "stomping" pattern with high impact steps while managing balance.</i><br>
-  <img src="media/step5_4.gif" width="45%">
-</p>
+<table align="center">
+  <tr>
+    <td align="center"><b>Phase 1</b><br><img src="media/step5.gif" width="100%"></td>
+    <td align="center"><b>Phase 2</b><br><img src="media/step5_2.gif" width="100%"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Phase 3</b><br><img src="media/step5_3.gif" width="100%"></td>
+    <td align="center"><b>Phase 4</b><br><img src="media/step5_4.gif" width="100%"></td>
+  </tr>
+</table>
 
 ---
 

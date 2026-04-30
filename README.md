@@ -47,20 +47,6 @@ To verify that the environment wrapping works correctly, I manually triggered th
 
 > **Important Note:** Even though we wrote the custom logic ourselves, we must name the functions exactly as the API dictates (`step`, `reset`, etc.) so that the Stable Baselines3 PPO algorithm can recognize and interact with our environment.
 
-**RL Virtual Environment Setup:**
-On modern Ubuntu systems, we must use a virtual environment to install new Python packages (like Gymnasium and Stable Baselines3) so we don't interfere with or break the system-wide Python files.
-```bash
-# Create and activate the virtual environment
-cd ~/venvs
-python3 -m venv --system-site-packages rl_env
-source rl_env/bin/activate
-
-# Install RL libraries
-pip install gymnasium stable-baselines3[extra]
-## You can't run normal colcon build , you have to use :
-colcon build --packages-select spider --symlink-install
-```
-
 ### Step 5: Training the PPO Agent & Reward Shaping (Phase 2)
 
 With the environment ready, I implemented the training pipeline using Stable Baselines3.
@@ -204,6 +190,19 @@ As seen in the GIF below, the spider has figured out how to stay upright and mov
 * `spider/`: Contains the custom Python nodes (`control.py`, `spider_env.py`).
 
 ## Installation & Usage
+
+**RL Virtual Environment Setup:**
+On modern Ubuntu systems, we must use a virtual environment to install new Python packages (like Gymnasium and Stable Baselines3) so we don't interfere with or break the system-wide Python files.
+```bash
+# Create and activate the virtual environment
+cd ~/venvs
+python3 -m venv --system-site-packages rl_env
+source rl_env/bin/activate
+
+# Install RL libraries
+pip install gymnasium stable-baselines3[extra]
+```
+
 1. **Clone the repo:**
    ```bash
    cd ~/ros2_ws/src
@@ -213,16 +212,35 @@ As seen in the GIF below, the spider has figured out how to stay upright and mov
    ```bash
    sudo apt install ros-jazzy-ros2-control ros-jazzy-ros2-controllers ros-jazzy-gz-ros2-control
    ```
-3. **Build & Launch:**
+3. **Build the Workspace:**
    ```bash
-   colcon build --packages-select spider
+   cd ~/ros2_ws
+   # Use symlink-install to prevent issues with the custom python environment
+   colcon build --packages-select spider --symlink-install
+   ```
+4. **Launch & Train / Test:**
+   Running the RL environment requires two separate terminals.
+
+   **Terminal 1 (Run Gazebo):**
+   ```bash
    source install/setup.bash
+   # Note: Change the launch argument to '-s' in launch.py for headless mode when training!
    ros2 launch spider launch.py
    ```
-4. **Run Terminal Control Node (In a new terminal):**
+
+   **Terminal 2 (Run the AI Script):**
    ```bash
+   # Activate the virtual environment
+   source ~/venvs/rl_env/bin/activate
+   
+   # Source the ROS 2 workspace
    source install/setup.bash
-   ros2 run spider control_node
+   
+   # To TRAIN a new brain:
+   python3 src/spider/spider/train.py
+
+   # OR to TEST an existing saved brain:
+   python3 src/spider/spider/test.py
    ```
 
 ## Roadmap & Next Steps

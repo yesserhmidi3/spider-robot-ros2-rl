@@ -66,7 +66,7 @@ colcon build --packages-select spider --symlink-install
 With the environment ready, I implemented the training pipeline using Stable Baselines3.
 
 #### 1. Reward Shaping
-Initially, I used a simple reward function: `base_reward = 1.0 + (forward_velocity * 10.0)`. However, the RL agent quickly found a loophole: it would simply stand perfectly still to endlessly farm the `1.0` survival reward, and when it did walk, it dragged its belly on the floor. 
+Initially, I used a simple reward function: `base_reward = 1.0 + (forward_velocity * 10.0)`. However, the RL agent quickly found a loophole: it would simply stand perfectly still to endlessly farm the `1.0` survival reward, and when it did walk, it dragged its belly on the floor.I also nerfed the energy penalty so it’s not scared to move, which helped encourage more active and natural locomotion.
 
 To fix this, I nerfed the survival reward, heavily buffed the forward velocity multiplier, and added a strict penalty if the robot's Z-height dropped too low. Here is the updated `step()` function inside `spider_env.py`:
 
@@ -110,7 +110,7 @@ To fix this, I nerfed the survival reward, heavily buffed the forward velocity m
 #### 2. The Training Script (`train.py`)
 To train efficiently, I created `train.py`. It utilizes a `CheckpointCallback` to save a backup brain every 10,000 steps (preventing catastrophic forgetting). Note that I set `device="cpu"`, as CPU processing proved faster for this specific MLP setup.
 
-> **💡 Pro-Tip for Training:** Always run Gazebo in **Headless Mode** when training! In your `launch.py`, change the argument to `launch_arguments={'gz_args': '-r -s empty.sdf'}.items()`. The `-s` runs the server without the 3D GUI, freeing up massive amounts of CPU/GPU power.
+> ** Pro-Tip for Training:** Always run Gazebo in **Headless Mode** when training! In your `launch.py`, change the argument to `launch_arguments={'gz_args': '-r -s empty.sdf'}.items()`. The `-s` runs the server without the 3D GUI, freeing up massive amounts of CPU/GPU power.
 
 ```python
 import os
@@ -230,11 +230,10 @@ With the "Laboratory" (Gymnasium wrapper) fully built and verified, the project 
 1. **✅ Phase 1: Environment Wrapping**
    Created a Gymnasium-compatible wrapper bridging Gazebo physics with Python RL libraries.
    
-3. **Phase 2: Proximal Policy Optimization (PPO)**
+3. **✅ Phase 2: Proximal Policy Optimization (PPO)**
     Implement the **train.py** script using Stable Baselines3 to train a PPO agent.
    
-5. **Phase 3: Locomotion (Gait Generation)**
-    Refine the reward functions based on forward velocity, body orientation, and energy efficiency to teach the spider an autonomous walking gait.
-
+5. **Phase 3: Locomotion Tuning (Gait Generation)**
+    Refine the reward functions to fix the circular walking pattern and stiff joints. Goals include encouraging a straight-line forward velocity and promoting symmetrical energy efficiency to teach the spider a natural walking gait.
 
 

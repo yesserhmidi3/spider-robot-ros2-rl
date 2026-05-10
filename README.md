@@ -322,6 +322,8 @@ Here is the final reward calculation inside `spider_env.py`:
   <img src="media/models7_200k.gif" width="70%">
 </p>
 
+**Final Model:** `spider_ppo_model_7.zip`
+
 By providing the correct physical limits and heavily punishing lateral drift, heading changes, and low body height, the AI was forced to **discover its own natural gait**. After ~200,000 timesteps, the robot more or less learned to coordinate all 12 joints and walked forward. Because the specific joint limits and home pose were calibrated purely through visual observation in the GUI rather than exact mechanical calculations, the resulting gait isn't perfectly smooth yet but the RL algorithm understood the task and actually learned to walk.
 
 ---

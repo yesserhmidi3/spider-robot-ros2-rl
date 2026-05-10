@@ -34,7 +34,7 @@ def generate_launch_description():
         #launch_arguments={'gz_args': '-r -s empty.sdf'}.items(), #Run onlheadless ,only math without sim (Server only)
     )
 
-    spawn_robot = Node(
+    """spawn_robot = Node(
         package='ros_gz_sim',
         executable='create',
         arguments=[
@@ -46,6 +46,46 @@ def generate_launch_description():
             '-J', 'L2_J2', '0.4', '-J', 'L2_J3', '0.6',
             '-J', 'L3_J2', '0.4', '-J', 'L3_J3', '0.6',
             '-J', 'L4_J2', '0.4', '-J', 'L4_J3', '0.6',
+        ],
+        output='screen'
+    )"""
+    """spawn_robot = Node(
+    package='ros_gz_sim',
+    executable='create',
+    arguments=[
+        '-name', 'spider_robot',
+        '-topic', 'robot_description',
+        '-x', '0', '-y', '0', '-z', '0.15',
+        '-J', 'L1_J2', '-0.031400', '-J', 'L1_J3', '-0.208800',
+        '-J', 'L2_J2', '-0.439600', '-J', 'L2_J3', '-0.208800',
+        '-J', 'L3_J2', '-0.596600', '-J', 'L3_J3',  '0.678600',
+        '-J', 'L4_J2',  '0.125600', '-J', 'L4_J3', '-0.313200',
+    ],
+    output='screen'
+    )"""
+    spawn_robot = Node(
+        package='ros_gz_sim',
+        executable='create',
+        arguments=[
+            '-name', 'spider_robot',
+            '-topic', 'robot_description',
+            '-x', '0', '-y', '0', '-z', '0.15',
+
+            '-J', 'L1_J1', '-0.376800',
+            '-J', 'L1_J2', '-0.031400',
+            '-J', 'L1_J3', '-0.365400',
+
+            '-J', 'L2_J1', '0',
+            '-J', 'L2_J2', '-0.376800',
+            '-J', 'L2_J3', '-0.052200',
+
+            '-J', 'L3_J1', '0',
+            '-J', 'L3_J2', '-0.722200',
+            '-J', 'L3_J3', '0.835200',
+
+            '-J', 'L4_J1', '0',
+            '-J', 'L4_J2', '0.125600',
+            '-J', 'L4_J3', '-0.469800',
         ],
         output='screen'
     )
@@ -78,11 +118,11 @@ def generate_launch_description():
 
 
     # RQT GUI for joint control (alternative to joint_state_publisher_gui)
-    '''rqt_joint_trajectory_controller = Node(
+    """rqt_joint_trajectory_controller = Node(
         package='rqt_joint_trajectory_controller',
         executable='rqt_joint_trajectory_controller',
         name='rqt_joint_trajectory_controller',
-    )'''#commented this to used control_node intead of rqt gui interface to control joints
+    )"""#commented this to used control_node intead of rqt gui interface to control joints
 
     #IMU bridge
     bridge = Node(
@@ -103,6 +143,5 @@ def generate_launch_description():
         spawn_jsb,  # Broadcast joint states
         spawn_controller,  # Joint trajectory controller
         bridge, #IMU bridge
-        #joint_state_publisher_gui,  # GUI with sliders
         #rqt_joint_trajectory_controller # RQT GUI for joint control
     ])

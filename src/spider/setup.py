@@ -36,6 +36,7 @@ setup(
         'console_scripts': [
             'control_node = spider.control:main',
             'train_node = spider.train:main',
+            'pose_node = spider.pose_find:main'
         ],
     },
 )

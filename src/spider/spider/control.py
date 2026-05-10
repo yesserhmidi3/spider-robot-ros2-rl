@@ -43,7 +43,6 @@ class Joint_Control(Node):
     def joint_state_callback(self, msg):
         #stores the current joint positions from the /joint_states topic
         self.current_positions = msg.position
-        #when we'll implement RL , this will be the observation of the environment that the agent will use to learn and make decisions
 
     def keyboard_input_loop(self):
         while rclpy.ok():

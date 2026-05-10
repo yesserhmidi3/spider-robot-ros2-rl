@@ -1,40 +1,40 @@
 import rclpy
 from rclpy.node import Node
-import threading #because ros2 node and ppo algorithm have to work continuously , so we use threading so each one can have their own thread
+import threading  # because ros2 node and ppo algorithm have to work continuously , so we use threading so each one can have their own thread
 import time
 import numpy as np
-import subprocess # Added to send terminal commands from Python
-import math       # Added for quaternion math
+import subprocess  # Added to send terminal commands from Python
+import math  # Added for quaternion math
 
 # Gymnasium imports
 import gymnasium as gym
 from gymnasium import spaces
 
 # ROS 2 message imports
-from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint 
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from sensor_msgs.msg import Imu, JointState
-from geometry_msgs.msg import Pose #Pose for velocity feedback
+from geometry_msgs.msg import Pose  # Pose for velocity feedback
 
 
-def euler_from_quaternion(x, y, z, w):    #Convert IMU quaternion to Euler angles (Roll, Pitch, Yaw)
+def euler_from_quaternion(x, y, z, w):  # Convert IMU quaternion to Euler angles (Roll, Pitch, Yaw)
     t0 = +2.0 * (w * x + y * z)
     t1 = +1.0 - 2.0 * (x * x + y * y)
     roll_x = math.atan2(t0, t1)
-    
+
     t2 = +2.0 * (w * y - z * x)
     t2 = +1.0 if t2 > +1.0 else t2
     t2 = -1.0 if t2 < -1.0 else t2
     pitch_y = math.asin(t2)
-    
+
     t3 = +2.0 * (w * z + x * y)
     t4 = +1.0 - 2.0 * (y * y + z * z)
     yaw_z = math.atan2(t3, t4)
-    
+
     return roll_x, pitch_y, yaw_z
 
 
 # 1. THE ROS 2 DATA HANDLER (Runs in a separate thread)
-class SpiderROSNode(Node): # Same as control.py just added the IMU for body orientation feedback
+class SpiderROSNode(Node):  # Same as control.py just added the IMU for body orientation feedback
     def __init__(self):
         super().__init__('spider_rl_interface')
 
@@ -44,20 +44,21 @@ class SpiderROSNode(Node): # Same as control.py just added the IMU for body orie
         self.pose_sub = self.create_subscription(Pose, '/model/spider_robot/pose', self.pose_callback, 10)
 
         self.joint_names = [
-            'L1_J1', 'L1_J2', 'L1_J3', 
-            'L2_J1', 'L2_J2', 'L2_J3', 
+            'L1_J1', 'L1_J2', 'L1_J3',
+            'L2_J1', 'L2_J2', 'L2_J3',
             'L3_J1', 'L3_J2', 'L3_J3',
             'L4_J1', 'L4_J2', 'L4_J3'
-        ]        
-        
+        ]
+
         # Latest sensor data
         self.current_joint_positions = np.zeros(12)
-        self.current_pitch = 0.0 
+        self.current_pitch = 0.0
         self.current_roll = 0.0
+        self.current_yaw = 0.0
 
-        self.current_x = 0.0  #current position
+        self.current_x = 0.0  # current position
         self.current_y = 0.0
-        self.current_z = 0.0 #initialize height
+        self.current_z = 0.0  # initialize height
 
     def joint_callback(self, msg):
         for i, name in enumerate(self.joint_names):
@@ -67,145 +68,211 @@ class SpiderROSNode(Node): # Same as control.py just added the IMU for body orie
 
     def imu_callback(self, msg):
         q = msg.orientation
-        roll, pitch, _ = euler_from_quaternion(q.x, q.y, q.z, q.w)
+        # roll, pitch, _ = euler_from_quaternion(q.x, q.y, q.z, q.w)
+        roll, pitch, yaw = euler_from_quaternion(q.x, q.y, q.z, q.w)  # added yaw
         self.current_roll = roll
-        self.current_pitch = pitch 
+        self.current_pitch = pitch
+        self.current_yaw = yaw
 
     def pose_callback(self, msg):
         self.current_x = msg.position.x
         self.current_y = msg.position.y
         self.current_z = msg.position.z
 
-    def send_action(self, action_array): #Formats RL numpy array into a ROS 2 Trajectory message
+    def send_action(self, action_array):  # Formats RL numpy array into a ROS 2 Trajectory message
         msg = JointTrajectory()
         msg.joint_names = self.joint_names
 
         point = JointTrajectoryPoint()
         point.positions = action_array.tolist()
-        
-        # RL step time 
+
+        # RL step time
         point.time_from_start.sec = 0
-        point.time_from_start.nanosec = 100000000 
-        
+        point.time_from_start.nanosec = 100000000
+
         msg.points.append(point)
         self.joint_pub.publish(msg)
+
 
 # 2. THE GYMNASIUM ENVIRONMENT
 class SpiderEnv(gym.Env):
     def __init__(self):
         super(SpiderEnv, self).__init__()
 
-        #1. Start ROS 2 Node in a separate Thread 
+        # 1. Start ROS 2 Node in a separate Thread
         rclpy.init()
         self.node = SpiderROSNode()
         self.ros_thread = threading.Thread(target=rclpy.spin, args=(self.node,), daemon=True)
         self.ros_thread.start()
 
-        #  2. Define the Spaces for the AI 
-        self.action_space = spaces.Box(low=-1.5, high=1.5, shape=(12,), dtype=np.float32)
-        
-        # Observation: 12 joint angles + 2 body angles (pitch, roll) = 14 total numbers
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(14,), dtype=np.float32)
+        # 2. Define the Spaces for the AI
+        #self.action_space = spaces.Box(low=-1.5, high=1.5, shape=(12,), dtype=np.float32)
+        #self.action_space = spaces.Box(low=-0.8, high=0.8, shape=(12,), dtype=np.float32) #limit : -0.8 to 0.8
+        lower_limits = np.array([
+            -0.785, -0.2, -0.5,   # L1
+            -0.785, -0.9, -0.3,   # L2 
+            -0.785, -1.3, 0,   # L3  #-0.785, -1.25, 0.4,
+            -0.785, -0.3, -0.7    # L4
+        ], dtype=np.float32)
+
+        upper_limits = np.array([
+             0.785,  0.785,  0.0,   # L1
+             0.785,  0.0,    0.3,   # L2
+             0.785,  1.3,   1.0,   # L3  #0.785,  1.25,   1.0,
+             0.785,  0.5,    0.0    # L4
+        ], dtype=np.float32)
+
+        self.action_space = spaces.Box(low=lower_limits, high=upper_limits, dtype=np.float32)
+
+
+        # Observation: 12 joint angles + 2 body angles (pitch, roll, yaw) = 15 total numbers
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(15,), dtype=np.float32)
 
         # 3. Define the "Standing" Home Pose
         # J1=0.0, J2=0.4, J3=0.6 for all 4 legs
-        self.home_pose = np.array([
-            0.0, 0.4, 0.6, 
-            0.0, 0.4, 0.6, 
-            0.0, 0.4, 0.6, 
+        """ self.home_pose = np.array([
+            0.0, 0.4, 0.6,
+            0.0, 0.4, 0.6,
+            0.0, 0.4, 0.6,
             0.0, 0.4, 0.6
+        ], dtype=np.float32)""" 
+
+        #changed this to "stading pose I got from the gui"
+        """self.home_pose = np.array([
+            0.0, -0.031400, -0.208800,
+            0.0, -0.439600, -0.208800,
+            0.0, -0.596600, 0.678600,
+            0.0, 0.125600, -0.313200
+        ], dtype=np.float32)"""
+
+        self.home_pose = np.array([
+            -0.376800, -0.031400, -0.365400,
+            0.0, -0.376800, -0.052200,
+            0.0, -0.722200, 0.835200,
+            0.0, 0.125600, -0.469800
         ], dtype=np.float32)
 
-        self.previous_x = 0.0 #intialize x coordinate 
 
-        # added this for the reset , resets after 500 steps and try again 
+        self.previous_x = 0.0  # intialize x coordinate
+        self.previous_y = 0.0
+
+        # added this for the reset , resets after 500 steps and try again
         self.max_steps = 500
         self.current_step = 0
 
-    def _get_obs(self):#Gathers the latest data from the ROS thread to feed to the RL
+        self.previous_yaw = 0.0
+        #self.previous_action = np.zeros(12)  # to stop violent joints
+        self.previous_action = self.home_pose.copy()
+    def _get_obs(self):  # Gathers the latest data from the ROS thread to feed to the RL
         joints = self.node.current_joint_positions
-        orientation = np.array([self.node.current_pitch, self.node.current_roll])
+        # orientation = np.array([self.node.current_pitch, self.node.current_roll])
+        orientation = np.array([self.node.current_pitch, self.node.current_roll, self.node.current_yaw])  # added yaw
         return np.concatenate((joints, orientation)).astype(np.float32)
 
     def reset(self, seed=None, options=None):
-        super().reset(seed=seed) #resets joints and robot 
-        
+        super().reset(seed=seed)  # resets joints and robot
+
         # Step 1: Tell the joints to move to the standing position
         self.node.send_action(self.home_pose)
-        time.sleep(0.2) # Give joints time to move
-        
+        time.sleep(0.2)  # Give joints time to move
+
         # Step 2: Teleport the robot back to the center in Gazebo using the terminal
-        reset_cmd = ( #this is gazebo reset cmd comand 
+        reset_cmd = (  # this is gazebo reset cmd comand
             "gz service -s /world/empty/set_pose "
             "--reqtype gz.msgs.Pose "
             "--reptype gz.msgs.Boolean "
-            "--req 'name: \"spider_robot\", position: {x: 0, y: 0, z: 0.085}, orientation: {x: 0, y: 0, z: 0, w: 1}'"
+            "--req 'name: \"spider_robot\", position: {x: 0, y: 0, z: 0.07}, orientation: {x: 0, y: 0, z: 0, w: 1}'"
         )
-        subprocess.run(reset_cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) # we used subprocess to open new terminal and do gz service immediatly without waiting for ros2
+        subprocess.run(reset_cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)  # we used subprocess to open new terminal and do gz service immediatly without waiting for ros2
 
         # Step 3: Wait for Gazebo physics to settle (robot dropping to the floor)
-        time.sleep(0.5) 
+        time.sleep(0.5)
 
         self.previous_x = self.node.current_x
+        self.previous_y = self.node.current_y
 
-        self.current_step = 0 # reset the counter
-        
+        #self.previous_action = np.zeros(12)
+        self.previous_action = self.home_pose.copy()
+        self.previous_yaw = self.node.current_yaw
+
+        self.current_step = 0  # reset the counter
+
         obs = self._get_obs()
         return obs, {}
 
-    def step(self, action):#The core loop (reward system)
+    def step(self, action):  # The core loop (reward system)
         # 1. Send the RL's chosen action to Gazebo
         self.node.send_action(action)
-        
+
         # 2. Wait a fraction of a second for physics to happen
-        time.sleep(0.1) 
-        
+        time.sleep(0.1)
+
         # 3. Read new states
         obs = self._get_obs()
 
         # VELOCITY MATH
         current_x = self.node.current_x
+        current_y = self.node.current_y  # for the laterl drift penalty
+        current_yaw = self.node.current_yaw  # for the heading penalty
+
         # Velocity = Distance / Time (our time.sleep is 0.1)
-        forward_velocity = (current_x - self.previous_x) / 0.1 
+        forward_velocity = (current_x - self.previous_x) / 0.1
+        lateral_velocity = (current_y - self.previous_y) / 0.1
+
         self.previous_x = current_x
-        
+        self.previous_y = current_y
+        self.previous_yaw = current_yaw
+
+
         # 4. Did the robot fall over?
         terminated = False
+
         # If pitched forward/backward OR rolled side-to-side more than ~45 degrees (0.8 rad)
-        if abs(self.node.current_pitch) > 0.8 or abs(self.node.current_roll) > 0.8: 
+        if abs(self.node.current_pitch) > 0.8 or abs(self.node.current_roll) > 0.8:
             terminated = True
 
-        # is off the ground when standing normally. 
-        '''if self.node.current_z < 0.04:  #0.07... is the normal standing position checked it by : "ros2 topic echo /model/spider_robot/pose"
-            terminated = True #tried  this : kept reseting , decided to do the height as a punishment not a full rest'''
-            
         # 5. Calculate how good that action was
         if terminated:
             # Harsh penalty for falling to discourage "diving" forward
             reward = -10.0
         else:
-            # 1.0 point for staying alive + bonus points for moving forward
-            # We multiply velocity by 10.0 to make the number big enough for the agent to care
-            # Base reward: Survival + Velocity
-            #base_reward = 1.0 + (forward_velocity * 10.0)
-            base_reward = 0.1 + (forward_velocity * 50.0) #nerfed the standing still and buffed the forward velocity because it stood still in the test
-            
-            #lowered the penalties from 0.5 and and 0.05 to 0.2 and 0.01
-            # Stability Penalty: Punish it for wobbling (max penalty is ~0.8)
+            # base_reward = 1.0 + (forward_velocity * 10.0)
+            #base_reward = 0.1 + (forward_velocity * 20.0)  # nerfed the standing still and buffed the forward velocity because it stood still in the test
+            base_reward = 0.05 + (forward_velocity * 40.0)
+
+            #used to be forward_velocity * 50.0
+
+            # Stability Penalty
             stability_penalty = (abs(self.node.current_pitch) + abs(self.node.current_roll)) * 0.05
-            
-            # Energy Penalty: Punish large, aggressive joint commands
-            energy_penalty = sum([abs(a) for a in action]) * 0.01
 
-            height_penalty = 0.0
-            if self.node.current_z < 0.03:
-                height_penalty = 1.0  # added this height penalty
-            
+            # Energy Penalty
+            action_diff = sum([abs(a - p) for a, p in zip(action, self.previous_action)])
+            #energy_penalty = action_diff * 0.02
+            energy_penalty = action_diff * 0.005
+
+
+            # new y heading and lateral movements penalties :
+            #heading_penalty = abs(current_yaw) * 0.5
+            heading_penalty = abs(current_yaw - self.previous_yaw) * 0.5
+            drift_penalty = abs(lateral_velocity) * 3.0 #*10.0
+
+            target_height = 0.055 # The Anti-Belly-Drag Rule # 0.07 standing position
+            #height_penalty = (abs(self.node.current_z - target_height)) * 5.0
+            #height_penalty = (abs(self.node.current_z - target_height)) * 2.0
+            if self.node.current_z < 0.05:
+                # Multiply by a stronger number (e.g., 5.0) to make sure it hates dropping low
+                height_penalty = (0.05 - self.node.current_z) * 5.0 
+            else:
+                # No penalty at all if it is standing tall enough!
+                height_penalty = 0.0
+
             # Final calculation
-            reward = base_reward - stability_penalty - energy_penalty - height_penalty
+            reward = base_reward - stability_penalty - energy_penalty - heading_penalty - drift_penalty - height_penalty
 
-            #added the reset after 500 steps
+        # added the reset after 500 steps
         self.current_step += 1
+        self.previous_action = action
+
         if self.current_step >= self.max_steps:
             truncated = True
         else:
@@ -213,7 +280,6 @@ class SpiderEnv(gym.Env):
 
         info = {}
         return obs, reward, terminated, truncated, info
-
 
     def close(self):
         rclpy.shutdown()

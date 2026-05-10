@@ -531,6 +531,8 @@
       link="Link_L3_J2" />
     <axis
       xyz="0.66952 -0.74279 0" />
+      
+      
     <limit
       lower="-1.57"
       upper="1.57"
@@ -592,6 +594,7 @@
       link="Link_L3_J3" />
     <axis
       xyz="0.66952 -0.74279 0" />
+
     <limit
       lower="-2.61"
       upper="2.61"

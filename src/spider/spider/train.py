@@ -8,12 +8,13 @@ def train():
     env = SpiderEnv()
 
     #load model (added after testing):
-    MODEL_PATH = "spider_ppo_model_latest.zip"
+    MODEL_PATH = "spider_ppo_model_7.zip"
+    #MODEL_PATH = "models2/spider_brain_v2_100000_steps.zip"
     # 2. Check if a saved model exists. If yes, load it. If no, create a new one.
     if os.path.exists(MODEL_PATH):
         print(f"--- SAVED MODEL FOUND! Loading {MODEL_PATH}... ---")
         # Notice we have to pass the env and tensorboard_log again so it knows where to keep writing
-        model = PPO.load(MODEL_PATH, env=env, tensorboard_log="./ppo_spider_logs/", device="cpu") #added this to make it work on cpu (faster)
+        model = PPO.load(MODEL_PATH, env=env, tensorboard_log="./ppo_spider_logs_v7/", device="cpu") #added this to make it work on cpu (faster)
     else:
         print("--- NO SAVED MODEL FOUND. Starting a new brain from scratch... ---")
         # 2. Define the AI Model (PPO)
@@ -23,28 +24,23 @@ def train():
             "MlpPolicy", 
             env, 
             verbose=1, 
-            learning_rate=0.0003, 
-            tensorboard_log="./ppo_spider_logs/",
+            learning_rate=0.0003,
+            tensorboard_log="./ppo_spider_logs_v7/",
             device="cpu" #added this to make it work on cpu (faster)
         )
     # This will save a backup every 10,000 steps inside a folder called "models"
     checkpoint_callback = CheckpointCallback(
         save_freq=10000,
-        save_path='./models/',
-        name_prefix='spider_brain'
+        save_path='./models7/',
+        name_prefix='spider_brain_v7'
     )
 
     # 3. Set training duration
-    # Start with 15,000 steps for a "Sanity Check" (about 15-30 mins)
-    #then did 200,000 for overnight
-    TIMESTEPS = 100000
+    TIMESTEPS = 500000
     
-    #print("--- STARTING TRAINING ---")
-    print(f"--- STARTING OVERNIGHT RUN FOR {TIMESTEPS} STEPS ---")
+    print(f"--- STARTING RUN FOR {TIMESTEPS} STEPS ---")
     print("Checkpoints will save automatically every 10,000 steps.")
     print("Press Ctrl+C at any time to stop training and safely save the model.")
-    #model.learn(total_timesteps=TIMESTEPS, reset_num_timesteps=False)
-    #print("--- TRAINING FINISHED ---")
 
     #added this so I can ctrl+c and save it
     try:
@@ -56,11 +52,9 @@ def train():
     finally:
 
     # 4. Save the brain
-        model.save("spider_ppo_model_latest")
+        model.save("spider_ppo_model_7")
         print("--- MODEL SAVED SUCCESSFULLY ---")
         env.close()
     
-    #env.close()
-
 if __name__ == '__main__':
     train()

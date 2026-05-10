@@ -216,12 +216,12 @@ And here are the resulting **Action Space Limits**:
 
 **Changed this :**
 ```python
-        """ self.home_pose = np.array([
+        self.home_pose = np.array([
             0.0, 0.4, 0.6,
             0.0, 0.4, 0.6,
             0.0, 0.4, 0.6,
             0.0, 0.4, 0.6
-        ], dtype=np.float32)"""
+        ], dtype=np.float32)
 ```
 **To this :**
 ```python

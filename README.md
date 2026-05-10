@@ -196,7 +196,7 @@ This checkpoint represents the culmination of nearly 680,000 steps of training. 
 
 While attempting to force a symmetrical trot gait using mathematical penalties, I discovered a major sim-to-real physics challenge: **Because the URDF was exported radially from SolidWorks, the rotational axes for the front and back legs were inverted.** (For example, sending `+1.0` to the front knee bent it *down*, but `+1.0` to the back knee bent it *up*). 
 
-Instead of fighting the complex coordinate math to artificially mirror the joints in the reward function, I used the `rqt_joint_trajectory_controller` GUI to empirically test the physical limits of every individual joint in Gazebo. 
+Instead of fighting the complex coordinate math to artificially mirror the joints in the reward function, I used the `rqt_joint_trajectory_controller` GUI to empirically test the physical limits of every individual joint in Gazebo and I did that with just normal visual observation , so these limits and standing pose aren't 100% true. 
 
 **1. GUI Calibration & Asymmetrical Limits:**
 I manually positioned the robot into a neutral 90° standing pose and then tested the exact joint range each leg needed to step forward. I discovered highly asymmetrical limits dictated by the CAD export. 
@@ -256,7 +256,8 @@ self.action_space = spaces.Box(low=-1.5, high=1.5, shape=(12,), dtype=np.float32
         self.action_space = spaces.Box(low=lower_limits, high=upper_limits, dtype=np.float32)
 ```
 **By changing the home pose I had to change the previous action to prevent a false energy spike on the first step of each episode**
-***From :**
+
+**From :**
 ```python
 self.previous_action = np.zeros(12)
 ```
@@ -267,7 +268,7 @@ self.previous_action = self.home_pose.copy()
 ```
 
 
-**Doing THIS was the absolute game changer.** By updating the Gymnasium environment strictly limiting the `action_space` to *only* these physically useful ranges, the RL algorithm didn't have to waste time exploring broken or inverted joint angles. It made the learning process exponentially easier.
+**Doing this was the absolute game changer.** By updating the Gymnasium environment strictly limiting the `action_space` to *only* these physically useful ranges, the RL algorithm didn't have to waste time exploring broken or inverted joint angles. It made the learning process exponentially easier.
 
 **2. Simplifying the Reward System:**
 Instead of forcing the AI to walk in a human-dictated trot gait, I removed the strict diagonal synchronization hints entirely. I let the AI discover its own biomechanically efficient gait by setting up a beautifully simple, constraint-based reward system:
@@ -321,7 +322,7 @@ Here is the final reward calculation inside `spider_env.py`:
   <img src="media/models7_200k.gif" width="70%">
 </p>
 
-By providing the correct physical limits and heavily punishing lateral drift, heading changes, and low body height, the AI was forced to **discover its own natural gait**. After ~200,000 timesteps, the robot more or less learned to coordinate all 12 joints and walked.
+By providing the correct physical limits and heavily punishing lateral drift, heading changes, and low body height, the AI was forced to **discover its own natural gait**. After ~200,000 timesteps, the robot more or less learned to coordinate all 12 joints and walked forward. Because the specific joint limits and home pose were calibrated purely through visual observation in the GUI rather than exact mechanical calculations, the resulting gait isn't perfectly smooth yet but the RL algorithm understood the task and actually learned to walk.
 
 ---
 
@@ -400,7 +401,5 @@ With the "Laboratory" (Gymnasium wrapper) fully built and verified, the project 
 3. **✅ Phase 2: Proximal Policy Optimization (PPO)**
     Implement the **train.py** script using Stable Baselines3 to train a PPO agent.
    
-5. **Phase 3: Locomotion Tuning (Gait Generation)**
-    Refine the reward functions to fix the circular walking pattern and stiff joints. Goals include encouraging a straight-line forward velocity and promoting symmetrical energy efficiency to teach the spider a natural walking gait.
-
-
+5. **✅ Phase 3: Locomotion Tuning (Gait Generation)**
+Refined the reward functions and calibrated joint limits to overcome SolidWorks axis inversions, resulting in successful forward locomotion.

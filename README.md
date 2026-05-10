@@ -192,6 +192,137 @@ This checkpoint represents the culmination of nearly 680,000 steps of training. 
   <img src="media/step5_5.gif" width="70%">
 </p>
 
+### Step 6: Overcoming the "SolidWorks Axis Trap" & Final Locomotion Tuning (Phase 3)
+
+While attempting to force a symmetrical trot gait using mathematical penalties, I discovered a major sim-to-real physics challenge: **Because the URDF was exported radially from SolidWorks, the rotational axes for the front and back legs were inverted.** (For example, sending `+1.0` to the front knee bent it *down*, but `+1.0` to the back knee bent it *up*). 
+
+Instead of fighting the complex coordinate math to artificially mirror the joints in the reward function, I used the `rqt_joint_trajectory_controller` GUI to empirically test the physical limits of every individual joint in Gazebo. 
+
+**1. GUI Calibration & Asymmetrical Limits:**
+I manually positioned the robot into a neutral 90° standing pose and then tested the exact joint range each leg needed to step forward. I discovered highly asymmetrical limits dictated by the CAD export. 
+
+Here is the calibrated **90° Standing Pose**:
+* **L1 (Front-Right):** `J1: -0.3768` | `J2: -0.0314` | `J3: -0.3654`
+* **L2 (Front-Left):** `J1: 0.0000` | `J2: -0.3768` | `J3: -0.0522`
+* **L3 (Back-Right):** `J1: 0.0000` | `J2: -0.7222` | `J3: 0.8352`
+* **L4 (Back-Left):** `J1: 0.0000` | `J2: 0.1256` | `J3: -0.4698`
+
+And here are the resulting **Action Space Limits**:
+* **All J1 (Hips):** `-0.785` to `0.785`
+* **L1 (Front-Right):** `J2` (-0.2 to 0.785) | `J3` (-0.5 to 0.0)
+* **L2 (Front-Left):** `J2` (-0.9 to 0.0) | `J3` (-0.3 to 0.3)
+* **L3 (Back-Right):** `J2` (-1.3 to 1.3) | `J3` (0.0 to 1.0)
+* **L4 (Back-Left):** `J2` (-0.3 to 0.5) | `J3` (-0.7 to 0.0)
+
+**Changed this :**
+```python
+        """ self.home_pose = np.array([
+            0.0, 0.4, 0.6,
+            0.0, 0.4, 0.6,
+            0.0, 0.4, 0.6,
+            0.0, 0.4, 0.6
+        ], dtype=np.float32)"""
+```
+**To this :**
+```python
+        self.home_pose = np.array([
+            -0.376800, -0.031400, -0.365400,
+            0.0, -0.376800, -0.052200,
+            0.0, -0.722200, 0.835200,
+            0.0, 0.125600, -0.469800
+        ], dtype=np.float32)
+```
+
+**Changed this :**
+```python
+self.action_space = spaces.Box(low=-1.5, high=1.5, shape=(12,), dtype=np.float32)
+```
+**To this :**
+```python
+        lower_limits = np.array([
+            -0.785, -0.2, -0.5,   # L1
+            -0.785, -0.9, -0.3,   # L2 
+            -0.785, -1.3, 0,   # L3  
+            -0.785, -0.3, -0.7    # L4
+        ], dtype=np.float32)
+
+        upper_limits = np.array([
+             0.785,  0.785,  0.0,   # L1
+             0.785,  0.0,    0.3,   # L2
+             0.785,  1.3,   1.0,   # L3  
+             0.785,  0.5,    0.0    # L4
+        ], dtype=np.float32)
+
+        self.action_space = spaces.Box(low=lower_limits, high=upper_limits, dtype=np.float32)
+```
+**By changing the home pose I had to change the previous action to prevent a false energy spike on the first step of each episode**
+***From :**
+```python
+self.previous_action = np.zeros(12)
+```
+
+**To :**
+```python
+self.previous_action = self.home_pose.copy()
+```
+
+
+**Doing THIS was the absolute game changer.** By updating the Gymnasium environment strictly limiting the `action_space` to *only* these physically useful ranges, the RL algorithm didn't have to waste time exploring broken or inverted joint angles. It made the learning process exponentially easier.
+
+**2. Simplifying the Reward System:**
+Instead of forcing the AI to walk in a human-dictated trot gait, I removed the strict diagonal synchronization hints entirely. I let the AI discover its own biomechanically efficient gait by setting up a beautifully simple, constraint-based reward system:
+* **Velocity Bonus:** `forward_velocity * 40.0`
+* **Lateral Drift Penalty:** `abs(lateral_velocity) * 3.0` (Nerfed from 10.0 to allow slight natural swaying).
+* **Progressive Height Penalty:** Empirically, the standing Z-height is `0.055`. If the robot drops below `0.05`, it receives a multiplying penalty `(0.05 - current_z) * 5.0`, forcing it to stand tall without belly-dragging.
+
+Here is the final reward calculation inside `spider_env.py`:
+
+```python
+    def step(self, action):
+        # 1. Send action & wait for physics
+        self.node.send_action(action)
+        time.sleep(0.1) 
+        
+        # 2. Velocity Math (Local Frame)
+        obs = self._get_obs()
+        current_x, current_y, current_yaw = self.node.current_x, self.node.current_y, self.node.current_yaw
+        forward_velocity = (current_x - self.previous_x) / 0.1 
+        lateral_velocity = (current_y - self.previous_y) / 0.1
+        
+        # 3. Fall Detection
+        terminated = True if abs(self.node.current_pitch) > 0.8 or abs(self.node.current_roll) > 0.8 else False
+            
+        # 4. Final Reward Calculation
+        if terminated:
+            reward = -10.0 # Harsh penalty for falling
+        else:
+            base_reward = 0.05 + (forward_velocity * 40.0) 
+            
+            # Penalties to force a clean, forward-facing walk
+            stability_penalty = (abs(self.node.current_pitch) + abs(self.node.current_roll)) * 0.05
+            energy_penalty = sum([abs(a - p) for a, p in zip(action, self.previous_action)]) * 0.005
+            heading_penalty = abs(current_yaw - self.previous_yaw) * 0.5
+            drift_penalty = abs(lateral_velocity) * 3.0
+            
+            # Progressive Height Penalty (Forces the robot to stand up!)
+            if self.node.current_z < 0.05:
+                height_penalty = (0.05 - self.node.current_z) * 5.0 
+            else:
+                height_penalty = 0.0
+            
+            reward = base_reward - stability_penalty - energy_penalty - heading_penalty - drift_penalty - height_penalty
+
+        self.current_step += 1
+        truncated = True if self.current_step >= self.max_steps else False
+        return obs, reward, terminated, truncated, {}
+```
+**Final Results (200,000 Timesteps)**
+<p align="center">
+  <img src="media/models7_200k.gif" width="70%">
+</p>
+
+By providing the correct physical limits and heavily punishing lateral drift, heading changes, and low body height, the AI was forced to **discover its own natural gait**. After ~200,000 timesteps, the robot more or less learned to coordinate all 12 joints and walked.
+
 ---
 
 ## Tech Stack

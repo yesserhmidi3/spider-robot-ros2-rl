@@ -2,7 +2,7 @@
 
 ![ROS 2](https://img.shields.io/badge/ROS2-Jazzy-blue)
 ![Gazebo](https://img.shields.io/badge/Gazebo-Harmonic-orange)
-![License](https://img.shields.io/badge/License-MIT-green)
+![License](https://img.shields.io/badge/License-GPLv3-blue)
 
 This repository tracks the development of a quadruped spider robot simulation built with **ROS 2 Jazzy** and **Gazebo Harmonic**. The project focuses on bridging the gap between mechanical design (SolidWorks) and intelligent locomotion using Reinforcement Learning, documented step-by-step.
 

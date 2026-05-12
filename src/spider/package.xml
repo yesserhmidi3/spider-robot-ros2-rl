@@ -5,7 +5,7 @@
   <version>0.0.0</version>
   <description>Spider robot description and simulation using ROS 2 and Gazebo.</description>
   <maintainer email="yesser.hmidi3@gmail.com">yesser</maintainer>
-  <license>MIT</license>
+  <license>GPL-3.0-only</license>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
